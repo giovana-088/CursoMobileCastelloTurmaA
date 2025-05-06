@@ -84,8 +84,10 @@ class _TelaInicialState extends State<TelaInicial> {
         appBar: AppBar(
           title: Text("Bem-vindo ${_nome == "" ? "Visitante" : _nome}"),
           actions: [
-            IconButton(onPressed:_salvarModoEscuro,
-             icon: Icon(_darkMode ? Icons.light_mode : Icons.dark_mode))
+            IconButton(
+              onPressed: _salvarModoEscuro,
+              icon: Icon(_darkMode ? Icons.light_mode : Icons.dark_mode),
+            ),
           ],
         ),
         body: Center(
@@ -99,6 +101,10 @@ class _TelaInicialState extends State<TelaInicial> {
                 onPressed: _salvarNome,
                 child: Text("Salvar Nome do Usuário"),
               ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Navigator.pushNamed(context, "/tarefas"),
+                child: Text("Tarefas do ${_nome}"),),
             ],
           ),
         ),
