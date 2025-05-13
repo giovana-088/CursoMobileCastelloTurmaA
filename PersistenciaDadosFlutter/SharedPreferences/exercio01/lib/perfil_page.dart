@@ -1,128 +1,108 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PerfilPage extends StatefulWidget {
+class UserDataPage extends StatefulWidget {
+  const UserDataPage({super.key});
+
   @override
-  _PerfilPageState createState() => _PerfilPageState();
+  State<UserDataPage> createState() => _UserDataPageState();
 }
 
-class _PerfilPageState extends State<PerfilPage> {
-  final TextEditingController _nomeController = TextEditingController();
-  final TextEditingController _idadeController = TextEditingController();
+class _UserDataPageState extends State<UserDataPage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
 
-  String _corSelecionada = 'Azul';
-  String _nome = '';
-  String _idade = '';
-  String _corSalva = 'Azul';
+  String? _favoriteColor;
+  String? _savedName;
+  String? _savedAge;
+  String? _savedColor;
 
-  final List<String> _cores = ['Azul', 'Vermelho', 'Verde', 'Amarelo', 'Rosa'];
+  final Map<String, Color> _colorOptions = {
+    'Vermelho': const Color.fromARGB(255, 138, 9, 0),
+    'Verde': Colors.green,
+    'Azul': Colors.blue,
+    'Amarelo': Colors.yellow,
+    'Roxo': Colors.purple,
+  };
 
   @override
   void initState() {
     super.initState();
-    _carregarDados();
+    _loadSavedData();
   }
 
-  // Carregar os dados salvos
-  void _carregarDados() async {
+  Future<void> _loadSavedData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _nome = prefs.getString('nome') ?? '';
-      _idade = prefs.getString('idade') ?? '';
-      _corSalva = prefs.getString('cor') ?? 'Azul';
-
-      _nomeController.text = _nome;
-      _idadeController.text = _idade;
-      _corSelecionada = _corSalva;
+      _savedName = prefs.getString('name');
+      _savedAge = prefs.getString('age');
+      _savedColor = prefs.getString('color');
+      _favoriteColor = _savedColor;
     });
   }
 
-  // Salvar os dados no SharedPreferences
-  void _salvarDados() async {
+  Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('nome', _nomeController.text.trim());
-    await prefs.setString('idade', _idadeController.text.trim());
-    await prefs.setString('cor', _corSelecionada);
+    await prefs.setString('name', _nameController.text);
+    await prefs.setString('age', _ageController.text);
+    await prefs.setString('color', _favoriteColor ?? '');
 
     setState(() {
-      _nome = _nomeController.text.trim();
-      _idade = _idadeController.text.trim();
-      _corSalva = _corSelecionada;
+      _savedName = _nameController.text;
+      _savedAge = _ageController.text;
+      _savedColor = _favoriteColor;
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Dados salvos com sucesso!")),
-    );
-  }
-
-  // Definir a cor de fundo conforme a cor favorita escolhida
-  Color _corDeFundo(String cor) {
-    switch (cor) {
-      case 'Azul':
-        return Colors.blue.shade100;
-      case 'Vermelho':
-        return Colors.red.shade100;
-      case 'Verde':
-        return Colors.green.shade100;
-      case 'Amarelo':
-        return Colors.yellow.shade100;
-      case 'Rosa':
-        return Colors.pink.shade100;
-      default:
-        return Colors.white;
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    Color backgroundColor =
+        _colorOptions[_savedColor] ?? Colors.grey.shade200;
+
     return Scaffold(
-      backgroundColor: _corDeFundo(_corSalva),
-      appBar: AppBar(title: Text('Meu Perfil Persistente')),
+      backgroundColor: backgroundColor,
+      appBar: AppBar(title: const Text('Informações Pessoais')),
       body: Padding(
-        padding: EdgeInsets.all(20),
-        child: ListView(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
           children: [
-            // Campo de Nome
             TextField(
-              controller: _nomeController,
-              decoration: InputDecoration(labelText: 'Nome'),
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Nome'),
             ),
-            // Campo de Idade
             TextField(
-              controller: _idadeController,
-              decoration: InputDecoration(labelText: 'Idade'),
+              controller: _ageController,
+              decoration: const InputDecoration(labelText: 'Idade'),
               keyboardType: TextInputType.number,
             ),
-            SizedBox(height: 20),
-            // Dropdown para selecionar a cor favorita
-            DropdownButtonFormField<String>(
-              value: _corSelecionada,
-              items: _cores.map((String cor) {
-                return DropdownMenuItem(
-                  value: cor,
-                  child: Text(cor),
+            const SizedBox(height: 10),
+            DropdownButton<String>(
+              value: _favoriteColor,
+              hint: const Text('Selecione a cor favorita'),
+              isExpanded: true,
+              items: _colorOptions.keys.map((String color) {
+                return DropdownMenuItem<String>(
+                  value: color,
+                  child: Text(color),
                 );
               }).toList(),
-              onChanged: (String? novaCor) {
+              onChanged: (value) {
                 setState(() {
-                  _corSelecionada = novaCor!;
+                  _favoriteColor = value;
                 });
               },
-              decoration: InputDecoration(labelText: 'Cor Favorita'),
             ),
-            SizedBox(height: 20),
-            // Botão Salvar Dados
+            const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _salvarDados,
-              child: Text('Salvar Dados'),
+              onPressed: _saveData,
+              child: const Text('Salvar Dados'),
             ),
-            SizedBox(height: 30),
-            Divider(),
-            // Exibição dos dados salvos
-            Text('Dados Salvos:', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text('Nome: $_nome'),
-            Text('Idade: $_idade'),
-            Text('Cor Favorita: $_corSalva'),
+            const SizedBox(height: 30),
+            const Text('Dados Salvos:', style: TextStyle(fontSize: 18)),
+            const SizedBox(height: 10),
+            Text('Nome: ${_savedName ?? "Nenhum"}'),
+            Text('Idade: ${_savedAge ?? "Nenhuma"}'),
+            Text('Cor favorita: ${_savedColor ?? "Nenhuma"}'),
           ],
         ),
       ),

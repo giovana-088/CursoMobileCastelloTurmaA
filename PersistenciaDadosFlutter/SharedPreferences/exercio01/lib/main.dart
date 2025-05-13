@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'perfil_page.dart'; // Importando a página de perfil
 
-void main() {
-  runApp(MeuPerfilApp());
+void main() {  //onde roda minha aplicação
+  runApp(const MyApp());  //Widget Principal (Elementos Visuais) - raiz do meu aplicativo 
 }
 
-class MeuPerfilApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+ 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Meu Perfil Persistente',
-      debugShowCheckedModeBanner: false,
-      home: PerfilPage(), // A página de perfil será a tela inicial
+    return const MaterialApp(
+      home: UserDataPage(), 
     );
   }
 }
