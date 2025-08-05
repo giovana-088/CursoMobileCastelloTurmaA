@@ -32,4 +32,11 @@
                     -Não gera APK nativos
                     (RunTime)
 
-                    
+    
+    ## Preparação da Máquina para Flutter
+    - Instalar o Java 
+    - Terminar: Java --version -> jdk-21java
+    - Prepara o Ambiente Android ( platforms - emulator - commandLine)
+    - Terminal: sdkmanager --list , adb --version, emulator --version 
+- Preparar o FLuetter ( src/flutter) 3.32.8
+- Terminar: flutter --version
