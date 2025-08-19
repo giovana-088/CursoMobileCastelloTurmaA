@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-void main(){
-  runApp(MaterialApp(home: TarefaPage(),));
+
+void main() {
+  runApp(MaterialApp(home: TarefaPage()));
 }
 
-class TarefaPage extends StatefulWidget{
+class TarefaPage extends StatefulWidget {
   const TarefaPage({super.key});
 
   @override
@@ -14,53 +15,139 @@ class TarefaPage extends StatefulWidget{
   }
 }
 
-class _TarefasPageState extends State<TarefaPage>{
+class _TarefasPageState extends State<TarefaPage> {
   List tarefas = [];
   final TextEditingController _tarefaController = TextEditingController();
-  static const String baseUrl = "http:10.109.197.5:3007/tarefas";
+  static const String baseUrl = "http://10.109.197.23:3007/tarefas";
 
   @override
   void initState() {
     super.initState();
     _carregarTarefas();
-
   }
-//método para carregar Tarefas da API
-  void _carregarTarefas() async{
+
+  // Carregar tarefas da API
+  void _carregarTarefas() async {
     try {
       final response = await http.get(Uri.parse(baseUrl));
-      // 200 é código que a conexão foi estabelecida com sucesso
-      if(response.statusCode == 200){
+      if (response.statusCode == 200) {
         setState(() {
-          //converte as tarefas para o vetor
-          tarefas = json.decode(response.body);
+          List<dynamic> dados = json.decode(response.body);
+          tarefas = dados.map((item) => Map<String, dynamic>.from(item)).toList();
         });
       }
     } catch (e) {
-      print("Erro ao buscar Tarefa: $e");
+      print("Erro ao buscar tarefas: $e");
     }
   }
 
-  // método para adicionar tarefas
-  void _adicionarTarefa(String titulo) async{
-    final novaTarefa = {"titulo":titulo, "concluida":false};
+  // Adicionar nova tarefa
+  void _adicionarTarefa(String titulo) async {
+    final novaTarefa = {"titulo": titulo, "concluida": false};
     try {
       final response = await http.post(
         Uri.parse(baseUrl),
-        headers: {"Content-Type":"application/json"},
-        body: json.encode(novaTarefa)
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(novaTarefa),
       );
-      if(response.statusCode == 201){
+      if (response.statusCode == 201) {
         _tarefaController.clear();
         _carregarTarefas();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Tarefa adicionada com sucesso")),
+        );
       }
     } catch (e) {
-      print("erro ao adiconar Tarefa: $e");
+      print("Erro ao adicionar tarefa: $e");
     }
   }
 
-  //continuar na proxima aula - Cenas dos Próximos Capítulos.
-  //remover Tarefas
+  // Remover tarefa
+  void _removerTarefa(String id) async {
+    try {
+      final response = await http.delete(Uri.parse("$baseUrl/$id"));
+      if (response.statusCode == 200) {
+        _carregarTarefas();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Tarefa apagada com sucesso")),
+        );
+      }
+    } catch (e) {
+      print("Erro ao deletar tarefa: $e");
+    }
+  }
 
-  //Modificar Tarefas
+  //Modificar Tarefas -> /put ou patch
+  void _atualizarTarefa(String id, bool novaSituacao) async {
+    try {
+      final response = await http.patch(
+        Uri.parse("$baseUrl/$id"),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({"concluida": novaSituacao}),
+      );
+      if (response.statusCode == 200) {
+        _carregarTarefas();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Tarefa atualizada com sucesso")),
+        );
+      }
+    } catch (e) {
+      print("Erro ao atualizar tarefa: $e");
+    }
+  }
+
+  // Build da tela
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Tarefas Via API")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: _tarefaController,
+              decoration: InputDecoration(
+                labelText: "Nova Tarefa",
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: _adicionarTarefa,
+            ),
+            SizedBox(height: 10),
+            Expanded(
+              child: tarefas.isEmpty
+                  ? Center(child: Text("Nenhuma Tarefa Adicionada"))
+                  : ListView.builder(
+                      itemCount: tarefas.length,
+                      itemBuilder: (context, index) {
+                        final tarefa = tarefas[index];
+                        return ListTile(
+                          leading: Checkbox(
+                            value: tarefa["concluida"],
+                            onChanged: (valor) {
+                              _atualizarTarefa(tarefa["id"], valor!);
+                            },
+                          ),
+                          title: Text(
+                            tarefa["titulo"],
+                            style: TextStyle(
+                              decoration: tarefa["concluida"]
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
+                            ),
+                          ),
+                          subtitle: Text(tarefa["concluida"] ? "Concluída" : "Pendente"),
+                          trailing: IconButton(
+                            onPressed: () => _removerTarefa(tarefa["id"]),
+                            icon: Icon(Icons.delete),
+                          ),
+                        );
+                      },
+                    ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
 }
