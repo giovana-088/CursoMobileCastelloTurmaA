@@ -7,7 +7,7 @@ class ApiService {
 // criar metodos de classe nao metodos de obj
 // permite uma maior segurança na solicitação de requsições http
 // static -> metodos e atributos de classe
-   static const String _baseUrl = "http://10.109.197.6:3007";
+   static const String _baseUrl = "http://10.109.197.4:3007";
 
    //metodos da classe
 

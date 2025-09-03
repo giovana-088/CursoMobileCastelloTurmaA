@@ -28,7 +28,6 @@ class _LivroListViewState extends State<LivroListView> {
     try {
       _livros = await _controller.fetchAll();
     } catch (e) {
-      // Tratar erro
       _livros = [];
     }
     setState(() {
@@ -36,35 +35,76 @@ class _LivroListViewState extends State<LivroListView> {
     });
   }
 
+  Future<void> _adicionarLivroParaUsuario(String usuarioId) async {
+    final novoLivro = Livro(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      titulo: 'Novo Livro do Usuário',
+      autor: usuarioId,
+      disponivel: true,
+    );
+    await _controller.create(novoLivro);
+    _carregarDados();
+  }
+
+  Future<void> _atualizarDisponibilidade(Livro livro, bool novoValor) async {
+    final atualizado = Livro(
+      id: livro.id,
+      titulo: livro.titulo,
+      autor: livro.autor,
+      disponivel: novoValor,
+    );
+    await _controller.update(atualizado);
+    _carregarDados();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_carregando) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_livros.isEmpty) {
-      return const Center(child: Text('Nenhum livro encontrado.'));
-    }
-    return ListView.builder(
-      itemCount: _livros.length,
-      itemBuilder: (context, index) {
-        final livro = _livros[index];
-        return ListTile(
-          title: Text(livro.titulo),
-          subtitle: Text(livro.autor),
-          trailing: Icon(
-            livro.disponivel ? Icons.check_circle : Icons.cancel,
-            color: livro.disponivel ? Colors.green : Colors.red,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Livros do Usuário'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () async {
+              // Exemplo: Adiciona livro para usuário com id "1"
+              await _adicionarLivroParaUsuario("1");
+            },
+            tooltip: 'Adicionar Livro para Usuário',
           ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LivroFormView(livro: livro),
-              ),
-            ).then((_) => _carregarDados());
-          },
-        );
-      },
+        ],
+      ),
+      body: _livros.isEmpty
+          ? const Center(child: Text('Nenhum livro encontrado.'))
+          : ListView.builder(
+              itemCount: _livros.length,
+              itemBuilder: (context, index) {
+                final livro = _livros[index];
+                return ListTile(
+                  title: Text('Título: ${livro.titulo}'),
+                  subtitle: Text('Autor/Usuário: ${livro.autor}'),
+                  trailing: Switch(
+                    value: livro.disponivel,
+                    activeColor: Colors.green,
+                    inactiveThumbColor: Colors.red,
+                    onChanged: (value) async {
+                      await _atualizarDisponibilidade(livro, value);
+                    },
+                  ),
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LivroFormView(livro: livro),
+                      ),
+                    );
+                    _carregarDados();
+                  },
+                );
+              },
+            ),
     );
   }
 }
