@@ -1,10 +1,11 @@
 import 'package:biblioteca_app/controllers/livro_controller.dart';
 import 'package:biblioteca_app/models/livro_model.dart';
+import 'package:biblioteca_app/models/livros_model.dart';
 import 'package:biblioteca_app/views/home_view.dart';
 import 'package:flutter/material.dart';
 
 class LivroFormView extends StatefulWidget {
-  const LivroFormView({super.key});
+  const LivroFormView({super.key, required Livro livro});
 
   @override
   State<LivroFormView> createState() => _LivroFormViewState();
@@ -19,7 +20,7 @@ class _LivroFormViewState extends State<LivroFormView> {
   void _criar() async {
     if (_formKey.currentState!.validate()) {
       final livroNovo = LivroModel(
-        id: DateTime.now().millisecond.toString(),
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
         titulo: _tituloField.text.trim(),
         autor: _autorField.text.trim(),
         disponivel: true,
@@ -72,5 +73,21 @@ class _LivroFormViewState extends State<LivroFormView> {
   }
 }
 
-class LivroController {
+class LivroModel {
+  final String id;
+  final String titulo;
+  final String autor;
+  final bool disponivel;
+
+  LivroModel({
+    required this.id,
+    required this.titulo,
+    required this.autor,
+    required this.disponivel,
+  });
 }
+
+class LivroController {
+  Future<void> create(LivroModel livroNovo) async {}
+}
+    
