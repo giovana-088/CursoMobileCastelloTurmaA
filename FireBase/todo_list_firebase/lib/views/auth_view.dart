@@ -8,7 +8,7 @@ class AuthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
+    return StreamBuilder<User?>( //widget de construção de telas a partir de uma tomada de decisão
         //a mudança de tela é determianda pela conexão do usuário ao firebase
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, Snapshot){
