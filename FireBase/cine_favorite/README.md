@@ -62,7 +62,7 @@ classDiagram
     } 
 
     User "1"--"1+" Movie : "selecionar"
-
+```
 
 
 ## Prototipagem
