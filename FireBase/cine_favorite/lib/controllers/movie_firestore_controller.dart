@@ -19,10 +19,10 @@ class MovieFirestoreController {
   //métodos (CRUD)
   //Pegar a Lista de Filme Favoritos
   //Stream => listener , pega a lista de favoritos sempre que form modificada
-  Future<Stream<List<Movie>>> getFavoriteMovies() async { //lista salva no FireStore
+  Stream<List<Movie>> getFavoriteMovies() { //lista salva no FireStore
     if(currentUser == null) return Stream.value([]); // se não tiver um usuário retrona uma lsita vazia
 
-    return await _db
+    return _db
     .collection("users")
     .doc(currentUser!.uid)
     .collection("favorite_movies")
@@ -49,7 +49,7 @@ class MovieFirestoreController {
     final movie = Movie(
       id: movieData["id"], 
       title: movieData["title"], 
-      posterPath: movieData["poster_path"]);
+      posterPath: file.path.toString()); //corrigir para o endereço certo da imagem
     
     //adicionar o OBJ ao FireStore
     await _db.collection("users").doc(currentUser!.uid).collection("favorite_movies")
@@ -79,4 +79,6 @@ class MovieFirestoreController {
     await _db.collection("users").doc(currentUser!.uid).collection("favorite_movies")
     .doc(movieId.toString()).update({"rating":rating});
   }
+
+  Future<void> removeMovie(int id) async {}
 }

@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 
-import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 
 class TmdbService {
@@ -18,18 +17,21 @@ class TmdbService {
   static Future<List<Map<String,dynamic>>> searchMovie(String movie) async{
     //converter a String em URL
     final apiURI = Uri.parse("$_baseURL/search/movie?api_key=$_apiKey&query=$movie&language=$_idioma");
-    // http.get (request http -> get)
+    // http.get (request Http -> get)
     final response = await http.get(apiURI);
-   //veerificar a resposta
+
+    //veerificar a resposta
     if(response.statusCode == 200){
       //convert o resultado Json em DArt
       final data =  json.decode(response.body);
       //tranforma data (string) em List
       return List<Map<String,dynamic>>.from(data["results"]);
     } else{
-      //caso contrario criar uma exeption
+      // caso contrário criar uma exception
       throw Exception("Falha ao Carregar Filmes da API");
     }
   }
- // metodos para buscar filme pelo id
+
+  //método para busca filme pelo ID
+
 }

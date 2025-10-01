@@ -1,11 +1,12 @@
-//classe de modelagem de dados para movie
+//classe de modelagem de dados para Movie
 
+//classe serve para adicionar filme a lista de favoritos do FireStore
 class Movie {
   //atributos
-  final int id; //Id do tmdb
-  final String title; //titulo do file
-  final String posterPath; //caminho para imaem do poster
-  double rating; //nota que o usario dará ao filme 
+  final int id; //Id fo tmdb
+  final String title; //titulo do filme
+  final String posterPath; //Caminho para a imagem do Poster
+  double rating; //nota que o usuário dará ao filme
 
   //Construtor
   Movie({
@@ -15,11 +16,11 @@ class Movie {
     this.rating = 0
   });
 
-  //métodos de conversão de obj <=> Json
+  // métodos de conversão de OBJ <=> JSON
 
-  //toMap => JSON
-  Map<String,dynamic> toMap(){
-     return{
+  //toMap OBJ => JSON
+  Map<String,dynamic> toMap() {
+    return{
       "id": id,
       "title": title,
       "posterPath":posterPath,
@@ -32,7 +33,7 @@ class Movie {
     return Movie(
       id: map["id"], 
       title: map["title"], 
-      posterPath: map ["posterPath"],
+      posterPath: map["posterPath"],
       rating: (map["rating"] as num).toDouble());
   }
 
